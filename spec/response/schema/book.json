@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Book response",
+  "description": "Data schema for a single book",
+  "allOf": [{
+    "$ref": "../../type/entity/book.json"
+  }, {
+    "type": "object",
+    "properties": {
+      "authors": {
+        "type": "array",
+        "description": "List of authors",
+        "items":
+          {
+            "$ref": "../../type/entity/author.json"
+          }
+      }
+    },
+    "required": ["authors"]
+  }]
+}

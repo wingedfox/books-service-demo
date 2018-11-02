@@ -1,0 +1,24 @@
+{
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "field": {
+        "type": "string",
+        "x-description": "object field name",
+        "pattern": "^[A-Za-z]+$"
+      },
+      "dir": {
+        "type": "string",
+        "x-description": "sorting order",
+        "enum": [
+          "asc",
+          "desc"
+        ],
+        "default": "asc",
+      }
+    },
+    "required": ["field", "dir"]
+  },
+  "minItems": 1
+}

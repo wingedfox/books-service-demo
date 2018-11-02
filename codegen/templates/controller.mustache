@@ -1,0 +1,39 @@
+'use strict';
+
+const logger = require('../../lib/utils').logger;
+
+{{#operations}}
+let {{classname}};
+try {
+  {{classname}} = require('../../lib/{{implFolder}}/{{classname}}Service');
+} catch (e) {
+  logger.warn('{{classname}} implementation is not found at "../../lib/{{implFolder}}/{{classname}}Service", use stub "../{{implFolder}}/{{classname}}Service"');
+  {{classname}} = require('../{{implFolder}}/{{classname}}Service');
+}
+{{#operation}}
+
+module.exports.{{nickname}} = async function {{nickname}} (ctx, next) {
+  logger.info('Request processing begin', {requestId: ctx.state.id});
+
+  {{#allParams}}
+  const {{paramName}} = {{#isBodyParam}}ctx.request.body{{/isBodyParam}}{{^isBodyParam}}ctx.{{#isPathParam}}params{{/isPathParam}}{{#isQueryParam}}request.query{{/isQueryParam}}.{{baseName}}{{/isBodyParam}};
+  {{/allParams}}
+
+  try {
+{{=<% %>=}}
+    const result = await <%classname%>.<%nickname%>({<%#allParams%><%paramName%><%#hasMore%>,<%/hasMore%><%/allParams%>})
+<%={{ }}=%>
+
+    ctx.response.body = result;
+
+    logger.debug('[controller::{{nickname}}] Request processing end', {requestId: ctx.state.id});
+  } catch (err) {
+    // TODO: make better errors
+
+    ctx.response.body = err;
+    ctx.response.status = 400;
+    logger.error('Request processing error', {error: err.message, requestId: ctx.state.id});
+  }
+};
+{{/operation}}
+{{/operations}}

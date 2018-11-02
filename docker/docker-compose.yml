@@ -1,0 +1,34 @@
+version: '3'
+services:
+  db:
+    restart: always
+    image: wangxian/alpine-mysql
+    ports:
+      - "3306:3306"
+    volumes:
+      - /tmp/mysql:/app
+    environment:
+      - MYSQL_USER=${DB_USER:-mysql}
+      - MYSQL_PASSWORD=${DB_PASSWORD:-mysql}
+      - MYSQL_DATABASE=${DB:-testdb}
+    hostname: db.${HOSTNAME}
+  rest-api:
+    restart: on-failure
+    build:
+      context: ..
+    ports:
+      - "8080:8080"
+    links:
+      - db
+    depends_on:
+      - db
+    environment:
+      # development || production || test
+      - NODE_ENV=${NODE_ENV:-production}
+      - DBHOST=${DB_HOST:-db}
+      - DBPORT=${DB_PORT:-3306}
+      - DBUSER=${DB_USER:-mysql}
+      - DBPASSWORD=${DB_PASSWORD:-mysql}
+      - DB=${DB:-testdb}
+      - APP_PORT=${APP_PORT:-8080}
+    hostname: rest-api.${HOSTNAME}

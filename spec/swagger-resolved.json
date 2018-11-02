@@ -1,0 +1,669 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Books",
+    "description": "Books app\n",
+    "contact": {
+      "email": "ilya@lebedev.net"
+    }
+  },
+  "host": "localhost:8081",
+  "basePath": "/",
+  "schemes": [
+    "http"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/authors": {
+      "post": {
+        "description": "Creates new author, allows duplicates",
+        "summary": "CreateanAuthor",
+        "x-oai-middleware": [
+          {
+            "file": "Authors",
+            "handler": "AuthorCreate"
+          }
+        ],
+        "tags": [
+          "Authors"
+        ],
+        "operationId": "V1AuthorsPost",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "description": "Creates new Author",
+            "schema": {
+              "$ref": "#/definitions/Authorentity1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Author Entity",
+            "schema": {
+              "$ref": "#/definitions/Authorentity"
+            }
+          },
+          "default": {
+            "description": "Default error response",
+            "schema": {
+              "$ref": "#/definitions/Defaulterror"
+            },
+            "examples": {
+              "application/json": {
+                "success": "false",
+                "reason": "Unknown error"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/authors/{id}": {
+      "get": {
+        "description": "Retrieves an Author",
+        "summary": "RetrievesasingleAuthor",
+        "x-oai-middleware": [
+          {
+            "file": "Authors",
+            "handler": "AuthorRetrieve"
+          }
+        ],
+        "tags": [
+          "Authors"
+        ],
+        "operationId": "V1AuthorsByIdGet",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "^(?:[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}|[A-F0-9]{8}-(?:[A-F0-9]{4}-){3}[A-F0-9]{12})$",
+            "description": "Author id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Author Entity",
+            "schema": {
+              "$ref": "#/definitions/Authorentity"
+            }
+          },
+          "404": {
+            "description": "Entity not found status",
+            "schema": {
+              "$ref": "#/definitions/Defaulterror"
+            },
+            "examples": {
+              "application/json": {
+                "success": "false",
+                "reason": "Hey, there's no such thing here"
+              }
+            }
+          },
+          "default": {
+            "description": "Default error response",
+            "schema": {
+              "$ref": "#/definitions/Defaulterror"
+            },
+            "examples": {
+              "application/json": {
+                "success": "false",
+                "reason": "Unknown error"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/books": {
+      "get": {
+        "description": "Returns list of the books",
+        "summary": "Retrievebooks",
+        "x-oai-middleware": [
+          {
+            "file": "Books",
+            "handler": "BookListRetrieve"
+          }
+        ],
+        "tags": [
+          "Books"
+        ],
+        "operationId": "V1BooksGet",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "default": 10,
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1.0,
+            "maximum": 100.0,
+            "exclusiveMaximum": false,
+            "exclusiveMinimum": false,
+            "description": "Limits number of records to retrieve"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "default": 0,
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0.0,
+            "exclusiveMaximum": false,
+            "exclusiveMinimum": false,
+            "description": "Defines offset to get records from"
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": false,
+            "items": {
+              "type": "string"
+            },
+            "description": "Defines sorting order"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Book Entity",
+            "schema": {
+              "$ref": "#/definitions/Bookresponse"
+            }
+          },
+          "default": {
+            "description": "Default error response",
+            "schema": {
+              "$ref": "#/definitions/Defaulterror"
+            },
+            "examples": {
+              "application/json": {
+                "success": "false",
+                "reason": "Unknown error"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Creates new book",
+        "summary": "CreateaBook",
+        "x-oai-middleware": [
+          {
+            "file": "Books",
+            "handler": "BookCreate"
+          }
+        ],
+        "tags": [
+          "Books"
+        ],
+        "operationId": "V1BooksPost",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "description": "Creates new Book",
+            "schema": {
+              "$ref": "#/definitions/Bookentity"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Book Entity",
+            "schema": {
+              "$ref": "#/definitions/Bookresponse"
+            }
+          },
+          "default": {
+            "description": "Default error response",
+            "schema": {
+              "$ref": "#/definitions/Defaulterror"
+            },
+            "examples": {
+              "application/json": {
+                "success": "false",
+                "reason": "Unknown error"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/books/{id}": {
+      "get": {
+        "description": "Returns new book",
+        "summary": "RetrievesasingleBook",
+        "x-oai-middleware": [
+          {
+            "file": "Books",
+            "handler": "BookRetrieve"
+          }
+        ],
+        "tags": [
+          "Books"
+        ],
+        "operationId": "V1BooksByIdGet",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "^(?:[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}|[A-F0-9]{8}-(?:[A-F0-9]{4}-){3}[A-F0-9]{12})$",
+            "description": "Book id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Book Entity",
+            "schema": {
+              "$ref": "#/definitions/Bookresponse"
+            }
+          },
+          "404": {
+            "description": "Entity not found status",
+            "schema": {
+              "$ref": "#/definitions/Defaulterror"
+            },
+            "examples": {
+              "application/json": {
+                "success": "false",
+                "reason": "Hey, there's no such thing here"
+              }
+            }
+          },
+          "default": {
+            "description": "Default error response",
+            "schema": {
+              "$ref": "#/definitions/Defaulterror"
+            },
+            "examples": {
+              "application/json": {
+                "success": "false",
+                "reason": "Unknown error"
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Updates book information",
+        "summary": "UpdatesBook",
+        "x-oai-middleware": [
+          {
+            "file": "Books",
+            "handler": "BookUpdate"
+          }
+        ],
+        "tags": [
+          "Books"
+        ],
+        "operationId": "V1BooksByIdPut",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "^(?:[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}|[A-F0-9]{8}-(?:[A-F0-9]{4}-){3}[A-F0-9]{12})$",
+            "description": "Book id"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "description": "Updates a Book",
+            "schema": {
+              "$ref": "#/definitions/Bookentity1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Book Entity",
+            "schema": {
+              "$ref": "#/definitions/Bookresponse"
+            }
+          },
+          "404": {
+            "description": "Entity not found status",
+            "schema": {
+              "$ref": "#/definitions/Defaulterror"
+            },
+            "examples": {
+              "application/json": {
+                "success": "false",
+                "reason": "Hey, there's no such thing here"
+              }
+            }
+          },
+          "default": {
+            "description": "Default error response",
+            "schema": {
+              "$ref": "#/definitions/Defaulterror"
+            },
+            "examples": {
+              "application/json": {
+                "success": "false",
+                "reason": "Unknown error"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Authorlistresponse": {
+      "title": "Authorlistresponse",
+      "description": "Data schema for the authors list",
+      "type": "object",
+      "properties": {
+        "list": {
+          "description": "List of authors",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Authorentity"
+          }
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1.0,
+          "maximum": 100.0,
+          "format": "int32"
+        },
+        "offset": {
+          "type": "integer",
+          "minimum": 0.0,
+          "format": "int32"
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0.0,
+          "format": "int32"
+        }
+      },
+      "required": [
+        "list",
+        "limit",
+        "offset"
+      ]
+    },
+    "Bookresponse": {
+      "title": "Bookresponse",
+      "description": "Data schema for a single book",
+      "type": "object",
+      "properties": {
+        "title": {
+          "description": "Book title",
+          "type": "string",
+          "maxLength": 200
+        },
+        "description": {
+          "description": "Book description",
+          "type": "string",
+          "maxLength": 1000
+        },
+        "date": {
+          "description": "Book issue date",
+          "type": "string",
+          "format": "date"
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^(?:[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}|[A-F0-9]{8}-(?:[A-F0-9]{4}-){3}[A-F0-9]{12})$"
+        },
+        "authors": {
+          "description": "List of authors",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Authorentity"
+          }
+        }
+      },
+      "required": [
+        "title",
+        "description",
+        "date",
+        "id",
+        "authors"
+      ]
+    },
+    "Booklistresponse": {
+      "title": "Booklistresponse",
+      "description": "Data schema for the books list",
+      "type": "object",
+      "properties": {
+        "list": {
+          "description": "List of books",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Bookresponse"
+          }
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1.0,
+          "maximum": 100.0,
+          "format": "int32"
+        },
+        "offset": {
+          "type": "integer",
+          "minimum": 0.0,
+          "format": "int32"
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0.0,
+          "format": "int32"
+        }
+      },
+      "required": [
+        "list",
+        "limit",
+        "offset"
+      ]
+    },
+    "Authorentity": {
+      "title": "Authorentity",
+      "description": "Author entity with all properties",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "Author name",
+          "type": "string",
+          "maxLength": 200
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^(?:[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}|[A-F0-9]{8}-(?:[A-F0-9]{4}-){3}[A-F0-9]{12})$"
+        }
+      },
+      "required": [
+        "name",
+        "id"
+      ]
+    },
+    "Authorentity1": {
+      "title": "Authorentity1",
+      "description": "Data schema for author core properties",
+      "example": {
+        "name": "Good Author"
+      },
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "Author name",
+          "type": "string",
+          "maxLength": 200
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "Bookentity": {
+      "title": "Bookentity",
+      "description": "Data schema for book core properties",
+      "example": {
+        "title": "Good Book",
+        "description": "Something good",
+        "date": "1988-10-21"
+      },
+      "type": "object",
+      "properties": {
+        "title": {
+          "description": "Book title",
+          "type": "string",
+          "maxLength": 200
+        },
+        "description": {
+          "description": "Book description",
+          "type": "string",
+          "maxLength": 1000
+        },
+        "date": {
+          "description": "Book issue date",
+          "type": "string",
+          "format": "date"
+        }
+      },
+      "required": [
+        "title",
+        "description",
+        "date"
+      ]
+    },
+    "Bookentity1": {
+      "title": "Bookentity1",
+      "description": "Book entity with all properties",
+      "type": "object",
+      "properties": {
+        "title": {
+          "description": "Book title",
+          "type": "string",
+          "maxLength": 200
+        },
+        "description": {
+          "description": "Book description",
+          "type": "string",
+          "maxLength": 1000
+        },
+        "date": {
+          "description": "Book issue date",
+          "type": "string",
+          "format": "date"
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^(?:[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}|[A-F0-9]{8}-(?:[A-F0-9]{4}-){3}[A-F0-9]{12})$"
+        }
+      },
+      "required": [
+        "title",
+        "description",
+        "date",
+        "id"
+      ]
+    },
+    "Defaulterror": {
+      "title": "Defaulterror",
+      "description": "Common error schema, other errors should extend this one for back-compatibility",
+      "example": {
+        "success": "false",
+        "reason": "Unknown error"
+      },
+      "type": "object",
+      "properties": {
+        "success": {
+          "description": "Always false for errors",
+          "example": "False",
+          "type": "string",
+          "default": "False"
+        },
+        "reason": {
+          "description": "Error reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "success",
+        "reason"
+      ]
+    },
+    "Dir": {
+      "title": "Dir",
+      "example": "asc",
+      "type": "string",
+      "enum": [
+        "asc",
+        "desc"
+      ]
+    },
+    "sort": {
+      "title": "sort",
+      "type": "object",
+      "properties": {
+        "field": {
+          "type": "string",
+          "pattern": "^[A-Za-z]+$"
+        },
+        "dir": {
+          "$ref": "#/definitions/Dir"
+        }
+      },
+      "required": [
+        "field",
+        "dir"
+      ]
+    }
+  },
+  "tags": [
+    {
+      "name": "Authors",
+      "description": "Authors operations"
+    },
+    {
+      "name": "Books",
+      "description": "Books operations"
+    },
+    {
+      "name": "Images",
+      "description": "Images operations"
+    }
+  ]
+}

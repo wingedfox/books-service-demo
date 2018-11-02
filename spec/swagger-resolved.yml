@@ -1,0 +1,1132 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "contact": {
+      "email": "ilya@lebedev.net"
+    },
+    "description": "Books app\n",
+    "title": "Books",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/v1/authors": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "description": "Creates new Author",
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AuthorCreateRequest"
+            },
+            "x-name": "AuthorCreate"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Author Entity",
+            "examples": {
+              "application/json": {
+                "name": "Billie Jean King"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/Author"
+            }
+          },
+          "default": {
+            "description": "Default error response",
+            "examples": {
+              "application/json": {
+                "reason": "Unknown error",
+                "success": "false"
+              }
+            },
+            "schema": {
+              "description": "Common error schema, other errors should extend this one for back-compatibility",
+              "properties": {
+                "reason": {
+                  "description": "Error reason",
+                  "type": "string"
+                },
+                "success": {
+                  "description": "Always false for errors",
+                  "enum": [
+                    false
+                  ],
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "success",
+                "reason"
+              ],
+              "title": "Default error",
+              "type": "object"
+            }
+          }
+        },
+        "tags": [
+          "Authors"
+        ],
+        "description": "Creates new author, allows duplicates",
+        "operationId": "AuthorCreate",
+        "summary": "Create an Author",
+        "x-oai-middleware": [
+          {
+            "file": "Authors",
+            "handler": "AuthorCreate"
+          }
+        ],
+        "x-router-controller": "Authors"
+      }
+    },
+    "/v1/authors/{id}": {
+      "get": {
+        "parameters": [
+          {
+            "description": "Author id",
+            "in": "path",
+            "name": "id",
+            "pattern": "^(?:[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}|[A-F0-9]{8}-(?:[A-F0-9]{4}-){3}[A-F0-9]{12})$",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Author Entity",
+            "examples": {
+              "application/json": {
+                "name": "Billie Jean King"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/Author"
+            }
+          },
+          "404": {
+            "description": "Entity not found status",
+            "examples": {
+              "application/json": {
+                "reason": "Hey, there's no such thing here",
+                "success": "false"
+              }
+            },
+            "schema": {
+              "allOf": [
+                {
+                  "description": "Common error schema, other errors should extend this one for back-compatibility",
+                  "properties": {
+                    "reason": {
+                      "description": "Error reason",
+                      "type": "string"
+                    },
+                    "success": {
+                      "description": "Always false for errors",
+                      "enum": [
+                        false
+                      ],
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "reason"
+                  ],
+                  "title": "Default error",
+                  "type": "object"
+                }
+              ],
+              "description": "Common error representation for a missing entity",
+              "title": "Something is not found error",
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "Default error response",
+            "examples": {
+              "application/json": {
+                "reason": "Unknown error",
+                "success": "false"
+              }
+            },
+            "schema": {
+              "description": "Common error schema, other errors should extend this one for back-compatibility",
+              "properties": {
+                "reason": {
+                  "description": "Error reason",
+                  "type": "string"
+                },
+                "success": {
+                  "description": "Always false for errors",
+                  "enum": [
+                    false
+                  ],
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "success",
+                "reason"
+              ],
+              "title": "Default error",
+              "type": "object"
+            }
+          }
+        },
+        "tags": [
+          "Authors"
+        ],
+        "description": "Retrieves an Author",
+        "operationId": "AuthorRetrieve",
+        "summary": "Retrieves a single Author",
+        "x-oai-middleware": [
+          {
+            "file": "Authors",
+            "handler": "AuthorRetrieve"
+          }
+        ],
+        "x-router-controller": "Authors"
+      }
+    },
+    "/v1/books": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "default": 10,
+            "description": "Limits number of records to retrieve",
+            "in": "query",
+            "maximum": 100,
+            "minimum": 1,
+            "name": "limit",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "default": 0,
+            "description": "Defines offset to get records from",
+            "in": "query",
+            "minimum": 0,
+            "name": "offset",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "collectionFormat": "multi",
+            "description": "Defines sorting order",
+            "in": "query",
+            "items": {
+              "properties": {
+                "dir": {
+                  "default": "asc",
+                  "enum": [
+                    "asc",
+                    "desc"
+                  ],
+                  "type": "string",
+                  "x-description": "sorting order"
+                },
+                "field": {
+                  "pattern": "^[A-Za-z]+$",
+                  "type": "string",
+                  "x-description": "object field name"
+                }
+              },
+              "required": [
+                "field",
+                "dir"
+              ],
+              "type": "object"
+            },
+            "minItems": 1,
+            "name": "sort",
+            "required": false,
+            "type": "array"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Book Entity",
+            "examples": {
+              "application/json": {
+                "authors": [
+                  {
+                    "id": "e4a27064-4af1-4b74-849a-6163a52d8421",
+                    "name": "Billie Jean King"
+                  }
+                ],
+                "date": "1960-01-02",
+                "description": "Something",
+                "name": "Some Book"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/Book"
+            }
+          },
+          "default": {
+            "description": "Default error response",
+            "examples": {
+              "application/json": {
+                "reason": "Unknown error",
+                "success": "false"
+              }
+            },
+            "schema": {
+              "description": "Common error schema, other errors should extend this one for back-compatibility",
+              "properties": {
+                "reason": {
+                  "description": "Error reason",
+                  "type": "string"
+                },
+                "success": {
+                  "description": "Always false for errors",
+                  "enum": [
+                    false
+                  ],
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "success",
+                "reason"
+              ],
+              "title": "Default error",
+              "type": "object"
+            }
+          }
+        },
+        "tags": [
+          "Books"
+        ],
+        "description": "Returns list of the books",
+        "operationId": "BookListRetrieve",
+        "summary": "Retrieve books",
+        "x-oai-middleware": [
+          {
+            "file": "Books",
+            "handler": "BookListRetrieve"
+          }
+        ],
+        "x-router-controller": "Books"
+      },
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "description": "Creates new Book",
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/BookCreateRequest"
+            },
+            "x-name": "BookCreate"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Book Entity",
+            "examples": {
+              "application/json": {
+                "authors": [
+                  {
+                    "id": "e4a27064-4af1-4b74-849a-6163a52d8421",
+                    "name": "Billie Jean King"
+                  }
+                ],
+                "date": "1960-01-02",
+                "description": "Something",
+                "name": "Some Book"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/Book"
+            }
+          },
+          "default": {
+            "description": "Default error response",
+            "examples": {
+              "application/json": {
+                "reason": "Unknown error",
+                "success": "false"
+              }
+            },
+            "schema": {
+              "description": "Common error schema, other errors should extend this one for back-compatibility",
+              "properties": {
+                "reason": {
+                  "description": "Error reason",
+                  "type": "string"
+                },
+                "success": {
+                  "description": "Always false for errors",
+                  "enum": [
+                    false
+                  ],
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "success",
+                "reason"
+              ],
+              "title": "Default error",
+              "type": "object"
+            }
+          }
+        },
+        "tags": [
+          "Books"
+        ],
+        "description": "Creates new book",
+        "operationId": "BookCreate",
+        "summary": "Create a Book",
+        "x-oai-middleware": [
+          {
+            "file": "Books",
+            "handler": "BookCreate"
+          }
+        ],
+        "x-router-controller": "Books"
+      }
+    },
+    "/v1/books/{id}": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "description": "Book id",
+            "in": "path",
+            "name": "id",
+            "pattern": "^(?:[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}|[A-F0-9]{8}-(?:[A-F0-9]{4}-){3}[A-F0-9]{12})$",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Book Entity",
+            "examples": {
+              "application/json": {
+                "authors": [
+                  {
+                    "id": "e4a27064-4af1-4b74-849a-6163a52d8421",
+                    "name": "Billie Jean King"
+                  }
+                ],
+                "date": "1960-01-02",
+                "description": "Something",
+                "name": "Some Book"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/Book"
+            }
+          },
+          "404": {
+            "description": "Entity not found status",
+            "examples": {
+              "application/json": {
+                "reason": "Hey, there's no such thing here",
+                "success": "false"
+              }
+            },
+            "schema": {
+              "allOf": [
+                {
+                  "description": "Common error schema, other errors should extend this one for back-compatibility",
+                  "properties": {
+                    "reason": {
+                      "description": "Error reason",
+                      "type": "string"
+                    },
+                    "success": {
+                      "description": "Always false for errors",
+                      "enum": [
+                        false
+                      ],
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "reason"
+                  ],
+                  "title": "Default error",
+                  "type": "object"
+                }
+              ],
+              "description": "Common error representation for a missing entity",
+              "title": "Something is not found error",
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "Default error response",
+            "examples": {
+              "application/json": {
+                "reason": "Unknown error",
+                "success": "false"
+              }
+            },
+            "schema": {
+              "description": "Common error schema, other errors should extend this one for back-compatibility",
+              "properties": {
+                "reason": {
+                  "description": "Error reason",
+                  "type": "string"
+                },
+                "success": {
+                  "description": "Always false for errors",
+                  "enum": [
+                    false
+                  ],
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "success",
+                "reason"
+              ],
+              "title": "Default error",
+              "type": "object"
+            }
+          }
+        },
+        "tags": [
+          "Books"
+        ],
+        "description": "Returns new book",
+        "operationId": "BookRetrieve",
+        "summary": "Retrieves a single Book",
+        "x-oai-middleware": [
+          {
+            "file": "Books",
+            "handler": "BookCreate"
+          }
+        ],
+        "x-router-controller": "Books"
+      },
+      "put": {
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "description": "Book id",
+            "in": "path",
+            "name": "id",
+            "pattern": "^(?:[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}|[A-F0-9]{8}-(?:[A-F0-9]{4}-){3}[A-F0-9]{12})$",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Updates a Book",
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/BookUpdateRequest"
+            },
+            "x-name": "BookUpdate"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Book Entity",
+            "examples": {
+              "application/json": {
+                "authors": [
+                  {
+                    "id": "e4a27064-4af1-4b74-849a-6163a52d8421",
+                    "name": "Billie Jean King"
+                  }
+                ],
+                "date": "1960-01-02",
+                "description": "Something",
+                "name": "Some Book"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/Book"
+            }
+          },
+          "404": {
+            "description": "Entity not found status",
+            "examples": {
+              "application/json": {
+                "reason": "Hey, there's no such thing here",
+                "success": "false"
+              }
+            },
+            "schema": {
+              "allOf": [
+                {
+                  "description": "Common error schema, other errors should extend this one for back-compatibility",
+                  "properties": {
+                    "reason": {
+                      "description": "Error reason",
+                      "type": "string"
+                    },
+                    "success": {
+                      "description": "Always false for errors",
+                      "enum": [
+                        false
+                      ],
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "reason"
+                  ],
+                  "title": "Default error",
+                  "type": "object"
+                }
+              ],
+              "description": "Common error representation for a missing entity",
+              "title": "Something is not found error",
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "Default error response",
+            "examples": {
+              "application/json": {
+                "reason": "Unknown error",
+                "success": "false"
+              }
+            },
+            "schema": {
+              "description": "Common error schema, other errors should extend this one for back-compatibility",
+              "properties": {
+                "reason": {
+                  "description": "Error reason",
+                  "type": "string"
+                },
+                "success": {
+                  "description": "Always false for errors",
+                  "enum": [
+                    false
+                  ],
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "success",
+                "reason"
+              ],
+              "title": "Default error",
+              "type": "object"
+            }
+          }
+        },
+        "tags": [
+          "Books"
+        ],
+        "description": "Updates book information",
+        "operationId": "BookUpdate",
+        "summary": "Updates Book",
+        "x-oai-middleware": [
+          {
+            "file": "Books",
+            "handler": "BookUpdate"
+          }
+        ],
+        "x-router-controller": "Books"
+      }
+    }
+  },
+  "definitions": {
+    "Author": {
+      "allOf": [
+        {
+          "allOf": [
+            {
+              "$ref": "#/definitions/AuthorCreateRequest/allOf/0",
+              "x-miro": "/home/adminuser/workspace/tests/1win/spec/type/entity/author-core.json"
+            },
+            {
+              "properties": {
+                "id": {
+                  "$ref": "#/definitions/Book/allOf/0/allOf/1/properties/id",
+                  "x-miro": "/home/adminuser/workspace/tests/1win/spec/type/common/uuid.json"
+                }
+              },
+              "required": [
+                "id"
+              ],
+              "type": "object"
+            }
+          ],
+          "description": "Author entity with all properties",
+          "title": "Author entity",
+          "type": "object"
+        }
+      ],
+      "description": "Data schema for a single author",
+      "title": "Author response",
+      "type": "object"
+    },
+    "AuthorCreateRequest": {
+      "allOf": [
+        {
+          "description": "Data schema for author core properties",
+          "properties": {
+            "name": {
+              "description": "Author name",
+              "maxLength": 200,
+              "type": "string"
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "title": "Author entity",
+          "type": "object"
+        }
+      ],
+      "description": "Data schema for author create request",
+      "title": "Author create request",
+      "type": "object"
+    },
+    "AuthorList": {
+      "allOf": [
+        {
+          "properties": {
+            "list": {
+              "description": "List of authors",
+              "items": {
+                "allOf": [
+                  {
+                    "$ref": "#/definitions/Author/allOf/0",
+                    "x-miro": "/home/adminuser/workspace/tests/1win/spec/type/entity/author.json"
+                  }
+                ],
+                "description": "Data schema for a single author",
+                "title": "Author response",
+                "type": "object"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "list"
+          ]
+        },
+        {
+          "$ref": "#/definitions/BookList/allOf/1",
+          "x-miro": "/home/adminuser/workspace/tests/1win/spec/type/partials/paginated-list.json"
+        }
+      ],
+      "description": "Data schema for the authors list",
+      "title": "Author list response",
+      "type": "object"
+    },
+    "AuthorUpdateRequest": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/Author/allOf/0",
+          "x-miro": "/home/adminuser/workspace/tests/1win/spec/type/entity/author.json"
+        }
+      ],
+      "description": "Data schema for author update request",
+      "title": "Author update request",
+      "type": "object"
+    },
+    "Book": {
+      "allOf": [
+        {
+          "allOf": [
+            {
+              "$ref": "#/definitions/BookCreateRequest/allOf/0",
+              "x-miro": "/home/adminuser/workspace/tests/1win/spec/type/entity/book-core.json"
+            },
+            {
+              "properties": {
+                "id": {
+                  "pattern": "^(?:[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}|[A-F0-9]{8}-(?:[A-F0-9]{4}-){3}[A-F0-9]{12})$",
+                  "title": "UUID string format definition",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id"
+              ],
+              "type": "object"
+            }
+          ],
+          "description": "Book entity with all properties",
+          "title": "Book entity",
+          "type": "object"
+        },
+        {
+          "properties": {
+            "authors": {
+              "description": "List of authors",
+              "items": {
+                "$ref": "#/definitions/Author/allOf/0",
+                "x-miro": "/home/adminuser/workspace/tests/1win/spec/type/entity/author.json"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "authors"
+          ],
+          "type": "object"
+        }
+      ],
+      "description": "Data schema for a single book",
+      "title": "Book response",
+      "type": "object"
+    },
+    "BookCreateRequest": {
+      "allOf": [
+        {
+          "description": "Data schema for book core properties",
+          "properties": {
+            "date": {
+              "description": "Book issue date",
+              "format": "date",
+              "type": "string"
+            },
+            "description": {
+              "description": "Book description",
+              "maxLength": 1000,
+              "type": "string"
+            },
+            "title": {
+              "description": "Book title",
+              "maxLength": 200,
+              "type": "string"
+            }
+          },
+          "required": [
+            "title",
+            "description",
+            "date"
+          ],
+          "title": "Book entity",
+          "type": "object"
+        }
+      ],
+      "description": "Data schema for book create request",
+      "title": "Book create request",
+      "type": "object"
+    },
+    "BookList": {
+      "allOf": [
+        {
+          "properties": {
+            "list": {
+              "description": "List of books",
+              "items": {
+                "allOf": [
+                  {
+                    "$ref": "#/definitions/Book/allOf/0",
+                    "x-miro": "/home/adminuser/workspace/tests/1win/spec/type/entity/book.json"
+                  },
+                  {
+                    "properties": {
+                      "authors": {
+                        "description": "List of authors",
+                        "items": {
+                          "$ref": "#/definitions/Author/allOf/0",
+                          "x-miro": "/home/adminuser/workspace/tests/1win/spec/type/entity/author.json"
+                        },
+                        "type": "array"
+                      }
+                    },
+                    "required": [
+                      "authors"
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "description": "Data schema for a single book",
+                "title": "Book response",
+                "type": "object"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "list"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "Data schema for paginations response",
+          "properties": {
+            "limit": {
+              "maximum": 100,
+              "minimum": 1,
+              "type": "integer",
+              "x-description": "Number of items in a list"
+            },
+            "offset": {
+              "minimum": 0,
+              "type": "integer",
+              "x-description": "Number of items to skip"
+            },
+            "total": {
+              "minimum": 0,
+              "type": "integer",
+              "x-description": "Total number of items in a list"
+            }
+          },
+          "required": [
+            "limit",
+            "offset"
+          ],
+          "title": "Paginated list",
+          "type": "object"
+        }
+      ],
+      "description": "Data schema for the books list",
+      "title": "Book list response",
+      "type": "object"
+    },
+    "BookUpdateRequest": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/Book/allOf/0",
+          "x-miro": "/home/adminuser/workspace/tests/1win/spec/type/entity/book.json"
+        }
+      ],
+      "description": "Data schema for book update request",
+      "title": "Book update request",
+      "type": "object"
+    },
+    "uuid": {
+      "pattern": "^(?:[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}|[A-F0-9]{8}-(?:[A-F0-9]{4}-){3}[A-F0-9]{12})$",
+      "title": "UUID string format definition",
+      "type": "string"
+    }
+  },
+  "tags": [
+    {
+      "description": "Authors operations",
+      "name": "Authors"
+    },
+    {
+      "description": "Books operations",
+      "name": "Books"
+    },
+    {
+      "description": "Images operations",
+      "name": "Images"
+    }
+  ],
+  "x-components": {
+    "responses": {
+      "author": {
+        "description": "Author Entity",
+        "examples": {
+          "application/json": {
+            "name": "Billie Jean King"
+          }
+        },
+        "schema": {
+          "$ref": "#/definitions/Author"
+        }
+      },
+      "author-list": {
+        "content": {
+          "application/json": {
+            "example": {
+              "list": [
+                {
+                  "id": "e4a27064-4af1-4b74-849a-6163a52d8421",
+                  "name": "Billie Jean King"
+                }
+              ]
+            },
+            "schema": {
+              "$ref": "#/definitions/AuthorList"
+            }
+          }
+        },
+        "description": "List of authors"
+      },
+      "book": {
+        "description": "Book Entity",
+        "examples": {
+          "application/json": {
+            "authors": [
+              {
+                "id": "e4a27064-4af1-4b74-849a-6163a52d8421",
+                "name": "Billie Jean King"
+              }
+            ],
+            "date": "1960-01-02",
+            "description": "Something",
+            "name": "Some Book"
+          }
+        },
+        "schema": {
+          "$ref": "#/definitions/Book"
+        }
+      },
+      "book-list": {
+        "content": {
+          "application/json": {
+            "example": {
+              "list": [
+                {
+                  "authors": [
+                    {
+                      "id": "e4a27064-4af1-4b74-849a-6163a52d8421",
+                      "name": "Billie Jean King"
+                    }
+                  ],
+                  "date": "1960-01-02",
+                  "description": "Something",
+                  "id": "1e6af5ce-3937-4bda-92d2-c80f14020c4c",
+                  "name": "Some Book"
+                }
+              ]
+            },
+            "schema": {
+              "$ref": "#/definitions/BookList"
+            }
+          }
+        },
+        "description": "List of books and authors"
+      },
+      "error-default": {
+        "description": "Default error response",
+        "examples": {
+          "application/json": {
+            "reason": "Unknown error",
+            "success": "false"
+          }
+        },
+        "schema": {
+          "description": "Common error schema, other errors should extend this one for back-compatibility",
+          "properties": {
+            "reason": {
+              "description": "Error reason",
+              "type": "string"
+            },
+            "success": {
+              "description": "Always false for errors",
+              "enum": [
+                false
+              ],
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "success",
+            "reason"
+          ],
+          "title": "Default error",
+          "type": "object"
+        }
+      },
+      "error-not-found": {
+        "description": "Entity not found status",
+        "examples": {
+          "application/json": {
+            "reason": "Hey, there's no such thing here",
+            "success": "false"
+          }
+        },
+        "schema": {
+          "allOf": [
+            {
+              "description": "Common error schema, other errors should extend this one for back-compatibility",
+              "properties": {
+                "reason": {
+                  "description": "Error reason",
+                  "type": "string"
+                },
+                "success": {
+                  "description": "Always false for errors",
+                  "enum": [
+                    false
+                  ],
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "success",
+                "reason"
+              ],
+              "title": "Default error",
+              "type": "object"
+            }
+          ],
+          "description": "Common error representation for a missing entity",
+          "title": "Something is not found error",
+          "type": "object"
+        }
+      }
+    },
+    "requestBodies": {
+      "author-create": {
+        "description": "Creates new Author",
+        "in": "body",
+        "name": "body",
+        "required": true,
+        "schema": {
+          "$ref": "#/definitions/AuthorCreateRequest"
+        },
+        "x-name": "AuthorCreate"
+      },
+      "author-update": {
+        "content": {
+          "application/json": {
+            "example": {
+              "name": "Good Author"
+            },
+            "schema": {
+              "$ref": "#/definitions/AuthorUpdateRequest"
+            }
+          }
+        },
+        "description": "Updates Author",
+        "required": true,
+        "x-name": "AuthorUpdate"
+      },
+      "book-create": {
+        "description": "Creates new Book",
+        "in": "body",
+        "name": "body",
+        "required": true,
+        "schema": {
+          "$ref": "#/definitions/BookCreateRequest"
+        },
+        "x-name": "BookCreate"
+      },
+      "book-update": {
+        "description": "Updates a Book",
+        "in": "body",
+        "name": "body",
+        "required": true,
+        "schema": {
+          "$ref": "#/definitions/BookUpdateRequest"
+        },
+        "x-name": "BookUpdate"
+      }
+    }
+  }
+}

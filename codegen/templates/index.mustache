@@ -1,0 +1,36 @@
+'use strict';
+
+const config = require('../lib/utils').config;
+const logger = require('../lib/utils').logger;
+const path = require('path');
+const Koa = require('koa');
+const koaLogger = require('koa-logger');
+const bodyParser = require('koa-bodyparser');
+const Router = require('koa-oai-router');
+const middleware = require('koa-oai-router-middleware');
+const requestId = require('koa-requestid');
+
+const app = new Koa();
+
+// *configure router - load api doc from directory api
+const router = new Router({
+//  apiDoc: path.join(__dirname,'api/swagger.json'),
+  apiDoc: path.join(__dirname,'../spec/swagger-resolved.json'),
+});
+
+// *configure plugin - identify x-oai-middleware in the api file and load the appropriate middleware from controllers
+// *mount plugin to router
+router.mount(middleware, path.join(__dirname, './controllers'));
+
+app.use(requestId());
+app.use(koaLogger());
+app.use(bodyParser());
+// *mount router to app
+app.use(router.routes());
+
+const serverPort = config.get('server.port');
+
+app.listen(serverPort, function () {
+    logger.info('[webapp] server is started', { port: serverPort, host: 'localhost'});
+    logger.info(`[webapp] swagger-ui is available on http://localhost:${serverPort}/api-explorer`);
+  });

@@ -1,0 +1,293 @@
+openapi: 3.0.1
+info:
+  description: |
+    Books app
+  version: 1.0.0
+  title: Books
+  contact:
+    email: ilya@lebedev.net
+#servers:
+#  - url: 'https://{environment}.{server}{version}'
+#    variables:
+#      environment:
+#        description: API environment naming scheme for rolling releases
+#        default: api    # Production server
+#        enum:
+#          - api         # Production server
+#          - api.dev     # Development server
+#          - api.staging # Staging server
+#      server:
+#        default: example.com
+#        description: Server name provisioned by the deployment scripts
+#      version:
+#        default: '/'
+#        description: Server api version
+tags:
+  - name: Authors
+    description: Authors operations
+  - name: Books
+    description: Books operations
+  - name: Images
+    description: Images operations
+paths:
+  /v1/books:
+    get:
+      parameters:
+        - in: query
+          name: limit
+          description: Limits number of records to retrieve
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+        - in: query
+          name: offset
+          description: Defines offset to get records from
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - in: query
+          name: sort
+          description: Defines sorting order
+          required: false
+          schema:
+            $ref: ./util/ordering.json
+      x-router-controller: Books
+      x-oai-middleware:
+        - file: Books
+          handler: BookListRetrieve
+      tags:
+        - Books
+      summary: Retrieve books
+      description: Returns list of the books
+      operationId: BookListRetrieve
+      responses:
+        200:
+          $ref: '#/components/responses/book'
+        default:
+          $ref: '#/components/responses/error-default'
+    post:
+      x-router-controller: Books
+      x-oai-middleware:
+        - file: Books
+          handler: BookCreate
+      tags:
+        - Books
+      summary: Create a Book
+      description: Creates new book
+      operationId: BookCreate
+      requestBody:
+        $ref: '#/components/requestBodies/book-create'
+      responses:
+        200:
+          $ref: '#/components/responses/book'
+        default:
+          $ref: '#/components/responses/error-default'
+  /v1/books/{id}:
+    get:
+      parameters:
+        - in: path
+          name: id
+          description: Book id
+          required: true
+          schema:
+            $ref: '#/components/schemas/uuid'
+      x-router-controller: Books
+      x-oai-middleware:
+        - file: Books
+          handler: BookCreate
+      tags:
+        - Books
+      summary: Retrieves a single Book
+      description: Returns new book
+      operationId: BookRetrieve
+      responses:
+        200:
+          $ref: '#/components/responses/book'
+        404:
+          $ref: '#/components/responses/error-not-found'
+        default:
+          $ref: '#/components/responses/error-default'
+    put:
+      parameters:
+        - in: path
+          name: id
+          description: Book id
+          required: true
+          schema:
+            $ref: '#/components/schemas/uuid'
+      x-router-controller: Books
+      x-oai-middleware:
+        - file: Books
+          handler: BookUpdate
+      tags:
+        - Books
+      summary: Updates Book
+      description: Updates book information
+      operationId: BookUpdate
+      requestBody:
+        $ref: '#/components/requestBodies/book-update'
+      responses:
+        200:
+          $ref: '#/components/responses/book'
+        404:
+          $ref: '#/components/responses/error-not-found'
+        default:
+          $ref: '#/components/responses/error-default'
+  /v1/authors:
+    post:
+      x-router-controller: Authors
+      x-oai-middleware:
+        - file: Authors
+          handler: AuthorCreate
+      tags:
+        - Authors
+      summary: Create an Author
+      description: Creates new author, allows duplicates
+      operationId: AuthorCreate
+      requestBody:
+        $ref: '#/components/requestBodies/author-create'
+      responses:
+        200:
+          $ref: '#/components/responses/author'
+        default:
+          $ref: '#/components/responses/error-default'
+  /v1/authors/{id}:
+    get:
+      parameters:
+        - in: path
+          name: id
+          description: Author id
+          required: true
+          schema:
+            $ref: '#/components/schemas/uuid'
+      x-router-controller: Authors
+      x-oai-middleware:
+        - file: Authors
+          handler: AuthorRetrieve
+      tags:
+        - Authors
+      summary: Retrieves a single Author
+      description: Retrieves an Author
+      operationId: AuthorRetrieve
+      responses:
+        200:
+          $ref: '#/components/responses/author'
+        404:
+          $ref: '#/components/responses/error-not-found'
+        default:
+          $ref: '#/components/responses/error-default'
+components:
+  responses:
+    error-default:
+      description: Default error response
+      content:
+        application/json:
+          schema:
+            $ref: ./response/schema/error-default.json
+          example:
+            $ref: ./response/example/error-default.json
+    error-not-found:
+      description: Entity not found status
+      content:
+        application/json:
+          schema:
+            $ref: ./response/schema/error-not-found.json
+          example:
+            $ref: ./response/example/error-not-found.json
+    author:
+      description: Author Entity
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Author'
+          example:
+            $ref: ./response/example/author.json
+    author-list:
+      description: List of authors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AuthorList'
+          example:
+            $ref: ./response/example/author-list.json
+    book:
+      description: Book Entity
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Book'
+          example:
+            $ref: ./response/example/book.json
+    book-list:
+      description: List of books and authors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BookList'
+          example:
+            $ref: ./response/example/book-list.json
+  requestBodies:
+    author-create:
+      description: Creates new Author
+      required: true
+      x-name: AuthorCreate
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AuthorCreateRequest'
+          example:
+            $ref: ./request/example/author-create.json
+    author-update:
+      description: Updates Author
+      required: true
+      x-name: AuthorUpdate
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AuthorUpdateRequest'
+          example:
+            $ref: ./request/example/author-update.json
+    book-create:
+      description: Creates new Book
+      required: true
+      x-name: BookCreate
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BookCreateRequest'
+          example:
+            $ref: ./request/example/book-create.json
+    book-update:
+      description: Updates a Book
+      required: true
+      x-name: BookUpdate
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BookUpdateRequest'
+          example:
+            $ref: ./request/example/book-update.json
+  schemas:
+    uuid:
+      $ref: ./type/common/uuid.json
+    Author:
+      $ref: ./response/schema/author.json
+    AuthorCreateRequest:
+      $ref: ./request/schema/author-create.json
+    AuthorList:
+      $ref: ./response/schema/author-list.json
+    AuthorUpdateRequest:
+      $ref: ./request/schema/author-update.json
+    Book:
+      $ref: ./response/schema/book.json
+    BookCreateRequest:
+      $ref: ./request/schema/book-create.json
+    BookList:
+      $ref: ./response/schema/book-list.json
+    BookUpdateRequest:
+      $ref: ./request/schema/book-update.json

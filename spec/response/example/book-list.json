@@ -1,0 +1,16 @@
+{
+  "list": [
+    {
+      "id": "1e6af5ce-3937-4bda-92d2-c80f14020c4c",
+      "name": "Some Book",
+      "date": "1960-01-02",
+      "description": "Something",
+      "authors": [
+        {
+          "id": "e4a27064-4af1-4b74-849a-6163a52d8421",
+          "name": "Billie Jean King"
+        }
+      ]
+    }
+  ]
+}

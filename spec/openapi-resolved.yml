@@ -1,0 +1,503 @@
+openapi: 3.0.1
+info:
+  description: |
+    Books app
+  version: 1.0.0
+  title: Books
+  contact:
+    email: ilya@lebedev.net
+tags:
+  - name: Authors
+    description: Authors operations
+  - name: Books
+    description: Books operations
+  - name: Images
+    description: Images operations
+paths:
+  /v1/books:
+    get:
+      parameters:
+        - in: query
+          name: limit
+          description: Limits number of records to retrieve
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+        - in: query
+          name: offset
+          description: Defines offset to get records from
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - in: query
+          name: sort
+          description: Defines sorting order
+          required: false
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                field:
+                  type: string
+                  x-description: object field name
+                  pattern: '^[A-Za-z]+$'
+                dir:
+                  type: string
+                  x-description: sorting order
+                  enum:
+                    - asc
+                    - desc
+                  default: asc
+              required:
+                - field
+                - dir
+            minItems: 1
+      x-router-controller: Books
+      x-oai-middleware:
+        - file: Books
+          handler: BookListRetrieve
+      tags:
+        - Books
+      summary: Retrieve books
+      description: Returns list of the books
+      operationId: BookListRetrieve
+      responses:
+        '200':
+          $ref: '#/components/responses/book'
+        default:
+          $ref: '#/components/responses/error-default'
+    post:
+      x-router-controller: Books
+      x-oai-middleware:
+        - file: Books
+          handler: BookCreate
+      tags:
+        - Books
+      summary: Create a Book
+      description: Creates new book
+      operationId: BookCreate
+      requestBody:
+        $ref: '#/components/requestBodies/book-create'
+      responses:
+        '200':
+          $ref: '#/components/responses/book'
+        default:
+          $ref: '#/components/responses/error-default'
+  '/v1/books/{id}':
+    get:
+      parameters:
+        - in: path
+          name: id
+          description: Book id
+          required: true
+          schema:
+            $ref: '#/components/schemas/uuid'
+      x-router-controller: Books
+      x-oai-middleware:
+        - file: Books
+          handler: BookCreate
+      tags:
+        - Books
+      summary: Retrieves a single Book
+      description: Returns new book
+      operationId: BookRetrieve
+      responses:
+        '200':
+          $ref: '#/components/responses/book'
+        '404':
+          $ref: '#/components/responses/error-not-found'
+        default:
+          $ref: '#/components/responses/error-default'
+    put:
+      parameters:
+        - in: path
+          name: id
+          description: Book id
+          required: true
+          schema:
+            $ref: '#/components/schemas/uuid'
+      x-router-controller: Books
+      x-oai-middleware:
+        - file: Books
+          handler: BookUpdate
+      tags:
+        - Books
+      summary: Updates Book
+      description: Updates book information
+      operationId: BookUpdate
+      requestBody:
+        $ref: '#/components/requestBodies/book-update'
+      responses:
+        '200':
+          $ref: '#/components/responses/book'
+        '404':
+          $ref: '#/components/responses/error-not-found'
+        default:
+          $ref: '#/components/responses/error-default'
+  /v1/authors:
+    post:
+      x-router-controller: Authors
+      x-oai-middleware:
+        - file: Authors
+          handler: AuthorCreate
+      tags:
+        - Authors
+      summary: Create an Author
+      description: 'Creates new author, allows duplicates'
+      operationId: AuthorCreate
+      requestBody:
+        $ref: '#/components/requestBodies/author-create'
+      responses:
+        '200':
+          $ref: '#/components/responses/author'
+        default:
+          $ref: '#/components/responses/error-default'
+  '/v1/authors/{id}':
+    get:
+      parameters:
+        - in: path
+          name: id
+          description: Author id
+          required: true
+          schema:
+            $ref: '#/components/schemas/uuid'
+      x-router-controller: Authors
+      x-oai-middleware:
+        - file: Authors
+          handler: AuthorRetrieve
+      tags:
+        - Authors
+      summary: Retrieves a single Author
+      description: Retrieves an Author
+      operationId: AuthorRetrieve
+      responses:
+        '200':
+          $ref: '#/components/responses/author'
+        '404':
+          $ref: '#/components/responses/error-not-found'
+        default:
+          $ref: '#/components/responses/error-default'
+components:
+  responses:
+    error-default:
+      description: Default error response
+      content:
+        application/json:
+          schema:
+            type: object
+            title: Default error
+            description: 'Common error schema, other errors should extend this one for back-compatibility'
+            properties:
+              success:
+                type: boolean
+                description: Always false for errors
+                enum:
+                  - false
+              reason:
+                type: string
+                description: Error reason
+            required:
+              - success
+              - reason
+          example:
+            success: 'false'
+            reason: Unknown error
+    error-not-found:
+      description: Entity not found status
+      content:
+        application/json:
+          schema:
+            type: object
+            title: Something is not found error
+            description: Common error representation for a missing entity
+            allOf:
+              - type: object
+                title: Default error
+                description: 'Common error schema, other errors should extend this one for back-compatibility'
+                properties:
+                  success:
+                    type: boolean
+                    description: Always false for errors
+                    enum:
+                      - false
+                  reason:
+                    type: string
+                    description: Error reason
+                required:
+                  - success
+                  - reason
+          example:
+            success: 'false'
+            reason: 'Hey, there''s no such thing here'
+    author:
+      description: Author Entity
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Author'
+          example:
+            name: Billie Jean King
+    author-list:
+      description: List of authors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AuthorList'
+          example:
+            list:
+              - id: e4a27064-4af1-4b74-849a-6163a52d8421
+                name: Billie Jean King
+    book:
+      description: Book Entity
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Book'
+          example:
+            name: Some Book
+            date: '1960-01-02'
+            description: Something
+            authors:
+              - id: e4a27064-4af1-4b74-849a-6163a52d8421
+                name: Billie Jean King
+    book-list:
+      description: List of books and authors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BookList'
+          example:
+            list:
+              - id: 1e6af5ce-3937-4bda-92d2-c80f14020c4c
+                name: Some Book
+                date: '1960-01-02'
+                description: Something
+                authors:
+                  - id: e4a27064-4af1-4b74-849a-6163a52d8421
+                    name: Billie Jean King
+  requestBodies:
+    author-create:
+      description: Creates new Author
+      required: true
+      x-name: AuthorCreate
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AuthorCreateRequest'
+          example:
+            name: Good Author
+    author-update:
+      description: Updates Author
+      required: true
+      x-name: AuthorUpdate
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AuthorUpdateRequest'
+          example:
+            name: Good Author
+    book-create:
+      description: Creates new Book
+      required: true
+      x-name: BookCreate
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BookCreateRequest'
+          example:
+            title: Good Book
+            description: Something good
+            date: '1988-10-21'
+    book-update:
+      description: Updates a Book
+      required: true
+      x-name: BookUpdate
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BookUpdateRequest'
+          example:
+            title: Good Book
+            description: Something good
+            date: '1988-10-21'
+  schemas:
+    uuid:
+      title: UUID string format definition
+      type: string
+      pattern: '^(?:[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}|[A-F0-9]{8}-(?:[A-F0-9]{4}-){3}[A-F0-9]{12})$'
+    Author:
+      type: object
+      title: Author response
+      description: Data schema for a single author
+      allOf:
+        - type: object
+          title: Author entity
+          description: Author entity with all properties
+          allOf:
+            - $ref: '#/components/schemas/AuthorCreateRequest/allOf/0'
+              x-miro: /home/adminuser/workspace/tests/1win/spec/type/entity/author-core.json
+            - type: object
+              properties:
+                id:
+                  $ref: '#/components/schemas/Book/allOf/0/allOf/1/properties/id'
+                  x-miro: /home/adminuser/workspace/tests/1win/spec/type/common/uuid.json
+              required:
+                - id
+    AuthorCreateRequest:
+      type: object
+      title: Author create request
+      description: Data schema for author create request
+      allOf:
+        - type: object
+          title: Author entity
+          description: Data schema for author core properties
+          properties:
+            name:
+              type: string
+              description: Author name
+              maxLength: 200
+          required:
+            - name
+    AuthorList:
+      type: object
+      title: Author list response
+      description: Data schema for the authors list
+      allOf:
+        - properties:
+            list:
+              type: array
+              description: List of authors
+              items:
+                type: object
+                title: Author response
+                description: Data schema for a single author
+                allOf:
+                  - $ref: '#/components/schemas/Author/allOf/0'
+                    x-miro: /home/adminuser/workspace/tests/1win/spec/type/entity/author.json
+          required:
+            - list
+        - $ref: '#/components/schemas/BookList/allOf/1'
+          x-miro: /home/adminuser/workspace/tests/1win/spec/type/partials/paginated-list.json
+    AuthorUpdateRequest:
+      type: object
+      title: Author update request
+      description: Data schema for author update request
+      allOf:
+        - $ref: '#/components/schemas/Author/allOf/0'
+          x-miro: /home/adminuser/workspace/tests/1win/spec/type/entity/author.json
+    Book:
+      type: object
+      title: Book response
+      description: Data schema for a single book
+      allOf:
+        - type: object
+          title: Book entity
+          description: Book entity with all properties
+          allOf:
+            - $ref: '#/components/schemas/BookCreateRequest/allOf/0'
+              x-miro: /home/adminuser/workspace/tests/1win/spec/type/entity/book-core.json
+            - type: object
+              properties:
+                id:
+                  title: UUID string format definition
+                  type: string
+                  pattern: '^(?:[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}|[A-F0-9]{8}-(?:[A-F0-9]{4}-){3}[A-F0-9]{12})$'
+              required:
+                - id
+        - type: object
+          properties:
+            authors:
+              type: array
+              description: List of authors
+              items:
+                $ref: '#/components/schemas/Author/allOf/0'
+                x-miro: /home/adminuser/workspace/tests/1win/spec/type/entity/author.json
+          required:
+            - authors
+    BookCreateRequest:
+      type: object
+      title: Book create request
+      description: Data schema for book create request
+      allOf:
+        - type: object
+          title: Book entity
+          description: Data schema for book core properties
+          properties:
+            title:
+              type: string
+              description: Book title
+              maxLength: 200
+            description:
+              type: string
+              description: Book description
+              maxLength: 1000
+            date:
+              type: string
+              description: Book issue date
+              format: date
+          required:
+            - title
+            - description
+            - date
+    BookList:
+      type: object
+      title: Book list response
+      description: Data schema for the books list
+      allOf:
+        - type: object
+          properties:
+            list:
+              type: array
+              description: List of books
+              items:
+                type: object
+                title: Book response
+                description: Data schema for a single book
+                allOf:
+                  - $ref: '#/components/schemas/Book/allOf/0'
+                    x-miro: /home/adminuser/workspace/tests/1win/spec/type/entity/book.json
+                  - type: object
+                    properties:
+                      authors:
+                        type: array
+                        description: List of authors
+                        items:
+                          $ref: '#/components/schemas/Author/allOf/0'
+                          x-miro: /home/adminuser/workspace/tests/1win/spec/type/entity/author.json
+                    required:
+                      - authors
+          required:
+            - list
+        - type: object
+          title: Paginated list
+          description: Data schema for paginations response
+          properties:
+            limit:
+              type: integer
+              x-description: Number of items in a list
+              minimum: 1
+              maximum: 100
+            offset:
+              type: integer
+              x-description: Number of items to skip
+              minimum: 0
+            total:
+              type: integer
+              x-description: Total number of items in a list
+              minimum: 0
+          required:
+            - limit
+            - offset
+    BookUpdateRequest:
+      type: object
+      title: Book update request
+      description: Data schema for book update request
+      allOf:
+        - $ref: '#/components/schemas/Book/allOf/0'
+          x-miro: /home/adminuser/workspace/tests/1win/spec/type/entity/book.json

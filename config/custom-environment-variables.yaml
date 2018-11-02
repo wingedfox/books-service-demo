@@ -1,0 +1,13 @@
+db:
+  connection:
+    user: DBUSER
+    password: DBPASSWORD
+    host: DBHOST
+    port: DBPORT
+    database: DBDATABASE
+
+log:
+  level: LOG_LEVEL
+
+server:
+  port: SERVER_PORT

@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Book entity",
+  "description": "Data schema for book core properties",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Book title",
+      "maxLength": 200
+    },
+    "description": {
+      "type": "string",
+      "description": "Book description",
+      "maxLength": 1000
+    },
+    "date": {
+      "type": "string",
+      "description": "Book issue date",
+      "format": "date"
+    }
+  },
+  "required": ["title", "description", "date"]
+}

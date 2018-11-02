@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Book list response",
+  "description": "Data schema for the books list",
+  "allOf": [{
+    "type": "object",
+    "properties": {
+      "list": {
+        "type": "array",
+        "description": "List of books",
+        "items":
+          {
+            "$ref": "./book.json"
+          }
+      }
+    },
+    "required": ["list"]
+  }, {
+    "$ref": "../../type/partials/paginated-list.json"
+  }]
+}

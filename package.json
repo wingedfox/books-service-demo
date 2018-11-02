@@ -1,0 +1,42 @@
+{
+  "name": "Books",
+  "version": "0.0.0",
+  "description": "Books rest api",
+  "author": "Ilya WingedFox Lebedev <ilya@lebedev.net>",
+  "homepage": "",
+  "license": "UNLICENSED",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "bundle": "speccy resolve -o spec/openapi-resolved.yml spec/swagger.yml -j",
+    "postbundle": "api-spec-converter --from=openapi_3 --to=swagger_2 spec/openapi-resolved.yml > spec/swagger-resolved.yml",
+    "lint": "speccy lint spec/swagger.yml -j -v",
+    "pregenerate": "npm run bundle",
+    "generate": "cg --verbose --templates ./codegen/templates/ --output . ./codegen/webapp spec/openapi-resolved.yml",
+    "prepare": "npm run generate",
+    "prestart": "knex migrate:latest",
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "api-spec-converter": "^2.7.16",
+    "config": "^2.0.1",
+    "faker": "^4.1.0",
+    "knex": "^0.15.2",
+    "koa": "^2.6.1",
+    "koa-bodyparser": "^4.2.1",
+    "koa-logger": "^3.2.0",
+    "koa-oai-router": "^2.0.3",
+    "koa-oai-router-middleware": "^1.1.2",
+    "koa-requestid": "^2.0.1",
+    "mysql": "^2.16.0",
+    "openapi-codegen": "^1.5.2",
+    "speccy": "^0.8.4",
+    "uuid": "^3.3.2",
+    "winston": "^3.1.0"
+  }
+}

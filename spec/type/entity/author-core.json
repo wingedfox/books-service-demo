@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Author entity",
+  "description": "Data schema for author core properties",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Author name",
+      "maxLength": 200
+    }
+  },
+  "required": ["name"]
+}

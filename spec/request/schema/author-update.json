@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Author update request",
+  "description": "Data schema for author update request",
+  "allOf": [
+    {
+      "$ref": "../../type/entity/author.json"
+    }
+  ]
+}

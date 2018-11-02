@@ -1,0 +1,9 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Author response",
+  "description": "Data schema for a single author",
+  "allOf": [{
+    "$ref": "../../type/entity/author.json"
+  }]
+}

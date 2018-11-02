@@ -1,0 +1,18 @@
+## Database properties
+db:
+  client: mysql
+  connection:
+    host: localhost
+    port: 3306
+    user: mysql
+    password: mysql
+    database: mysql
+
+## Logging properties
+log:
+  # ERROR, WARN, INFO, VERBOSE, DEBUG
+  level: INFO
+
+## Server properties
+server:
+  port: 8080
